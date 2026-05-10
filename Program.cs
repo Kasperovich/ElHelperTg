@@ -11,17 +11,40 @@ using Telegram.Bot.Types.ReplyMarkups;
 var builder = Host.CreateApplicationBuilder(args);
 builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly());
 
-var token = builder.Configuration["BotConfiguration:BotToken"]
-    ?? Environment.GetEnvironmentVariable("BOT_TOKEN");
-if (string.IsNullOrWhiteSpace(token))
+string? ResolveBotToken()
+{
+    string? nz(string? s) =>
+        string.IsNullOrWhiteSpace(s) ? null : s.Trim();
+
+    // Конфиг (appsettings*, BotConfiguration__BotToken, dotnet user-secrets) и популярные имена переменных в контейнере/ПaaS.
+    foreach (var s in new[]
+             {
+                 builder.Configuration["BotConfiguration:BotToken"],
+                 Environment.GetEnvironmentVariable("BOT_TOKEN"),
+                 Environment.GetEnvironmentVariable("TELEGRAM_BOT_TOKEN"),
+                 Environment.GetEnvironmentVariable("TG_BOT_TOKEN"),
+                 Environment.GetEnvironmentVariable("BotConfiguration__BotToken"),
+             })
+    {
+        var t = nz(s);
+        if (t != null)
+            return t;
+    }
+
+    return null;
+}
+
+var token = ResolveBotToken();
+if (token is null)
 {
     throw new InvalidOperationException(
-        "Не задан токен бота. Сделайте одно из: "
-        + "dotnet user-secrets set \"BotConfiguration:BotToken\" \"<token>\" в папке проекта с ElHelper.csproj; "
-        + "или в этом же процессе: $env:BOT_TOKEN=\"<token>\"; dotnet run; "
-        + "или env BotConfiguration__BotToken (двойное подчёркивание) для секции BotConfiguration.BotToken; "
-        + "или appsettings.json рядом с проектом: {\"BotConfiguration\":{\"BotToken\":\"...\"}}. "
-        + "Токен выдаёт @BotFather в Telegram после команды /newbot.");
+        "Не задан токен бота.\n\n"
+        + "Docker / хостинг: задайте переменную окружения BOT_TOKEN (или TELEGRAM_BOT_TOKEN, TG_BOT_TOKEN) "
+        + "со значением токена @BotFather, либо BotConfiguration__BotToken.\n"
+        + "Пример Docker: docker run -e BOT_TOKEN=\"<token>\" …\n\n"
+        + "Локально: dotnet user-secrets set \"BotConfiguration:BotToken\" \"<token>\"; "
+        + "или $env:BOT_TOKEN=\"<token>\"; dotnet run; "
+        + "или appsettings.json рядом с сборкой / проектом: {\"BotConfiguration\":{\"BotToken\":\"...\"}}.");
 }
 
 using var cts = new CancellationTokenSource();

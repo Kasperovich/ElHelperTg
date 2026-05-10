@@ -1,5 +1,10 @@
 # docker build -t el-helper-tg .
-# Токен: BOT_TOKEN или BotConfiguration__BotToken (переменные окружения в рантайме).
+# При запуске контейнера обязательно передайте токен Telegram, например:
+#   docker run -e BOT_TOKEN="123456:ABC..." el-helper-tg
+# Альтернативные имена: TELEGRAM_BOT_TOKEN, TG_BOT_TOKEN, BotConfiguration__BotToken
+#
+# Railway (https://railway.com): в сервисе откройте Variables → добавьте BOT_TOKEN
+# со значением токена от @BotFather. Пересоберите/задеплойте после сохранения.
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
