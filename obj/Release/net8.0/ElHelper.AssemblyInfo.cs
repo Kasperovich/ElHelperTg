@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ElHelper")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fa2397f0710678d469f4bb65d73c4c80e18a4f0c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f5727f522b6c77a5f39bde085cb1471531973ddc")]
 [assembly: System.Reflection.AssemblyProductAttribute("ElHelper")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ElHelper")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

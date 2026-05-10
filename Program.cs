@@ -10,41 +10,34 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly());
+builder.Configuration.AddEnvironmentVariables();
 
-string? ResolveBotToken()
-{
-    string? nz(string? s) =>
-        string.IsNullOrWhiteSpace(s) ? null : s.Trim();
-
-    // Конфиг (appsettings*, BotConfiguration__BotToken, dotnet user-secrets) и популярные имена переменных в контейнере/ПaaS.
-    foreach (var s in new[]
-             {
-                 builder.Configuration["BotConfiguration:BotToken"],
-                 Environment.GetEnvironmentVariable("BOT_TOKEN"),
-                 Environment.GetEnvironmentVariable("TELEGRAM_BOT_TOKEN"),
-                 Environment.GetEnvironmentVariable("TG_BOT_TOKEN"),
-                 Environment.GetEnvironmentVariable("BotConfiguration__BotToken"),
-             })
-    {
-        var t = nz(s);
-        if (t != null)
-            return t;
-    }
-
-    return null;
-}
-
-var token = ResolveBotToken();
+var token = BotRuntimeConfig.TryGetTelegramBotToken(builder);
 if (token is null)
 {
+    var similarKeys = BotRuntimeConfig.SensitiveEnvKeysForDiagnostics();
+    if (similarKeys.Count > 0)
+    {
+        Console.Error.WriteLine(
+            "[ElHelper] В окружении есть переменные с «TOKEN»/«TELEGRAM» в имени (значения не выводим): "
+            + string.Join(", ", similarKeys));
+    }
+    else
+    {
+        Console.Error.WriteLine(
+            "[ElHelper] Нет переменных окружения с «TOKEN» или «TELEGRAM» в имени — похоже, секрет не проброшен в сервис.");
+    }
+
     throw new InvalidOperationException(
         "Не задан токен бота.\n\n"
-        + "Docker / хостинг: задайте переменную окружения BOT_TOKEN (или TELEGRAM_BOT_TOKEN, TG_BOT_TOKEN) "
-        + "со значением токена @BotFather, либо BotConfiguration__BotToken.\n"
-        + "Пример Docker: docker run -e BOT_TOKEN=\"<token>\" …\n\n"
+        + "Railway (https://railway.com): откройте проект → сервис, который деплоит этот репозиторий → вкладка "
+        + "Variables → New Variable → имя точно BOT_TOKEN, значение — токен от @BotFather. "
+        + "Сохраните и нажмите Redeploy (переменные не подхватываются старым уже запущенным образом без нового деплоя).\n"
+        + "Если переменная задана на уровне проекта, убедитесь, что она подключена к этому сервису (Shared / Reference).\n\n"
+        + "Другие варианты имён: TELEGRAM_BOT_TOKEN, TG_BOT_TOKEN, BotConfiguration__BotToken; "
+        + "или файл: переменная BOT_TOKEN_FILE = путь к файлу с токеном в одной строке.\n\n"
         + "Локально: dotnet user-secrets set \"BotConfiguration:BotToken\" \"<token>\"; "
-        + "или $env:BOT_TOKEN=\"<token>\"; dotnet run; "
-        + "или appsettings.json рядом с сборкой / проектом: {\"BotConfiguration\":{\"BotToken\":\"...\"}}.");
+        + "или appsettings.json: {\"BotConfiguration\":{\"BotToken\":\"...\"}}.");
 }
 
 using var cts = new CancellationTokenSource();
