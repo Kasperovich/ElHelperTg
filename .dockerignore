@@ -1,0 +1,12 @@
+**/bin/
+**/obj/
+**/out/
+**/out2/
+.git/
+.gitattributes
+.gitignore
+.vs/
+.idea/
+*.user
+**/agent-tools/
+**/.cursor/
