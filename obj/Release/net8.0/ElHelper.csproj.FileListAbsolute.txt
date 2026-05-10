@@ -54,3 +54,4 @@ c:\projects\ElHelperTg\obj\Release\net8.0\ElHelper.pdb
 c:\projects\ElHelperTg\obj\Release\net8.0\ElHelper.genruntimeconfig.cache
 c:\projects\ElHelperTg\obj\Release\net8.0\ref\ElHelper.dll
 c:\projects\ElHelperTg\bin\Release\net8.0\ElHelper.exe
+C:\projects\ElHelperTg\obj\Release\net8.0\ElHelper.sourcelink.json
